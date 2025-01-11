@@ -71,7 +71,7 @@ def select_csv_file():
 
             # Step 2: Process the CSV file
             try:
-                df = pd.read_csv(file_path, header=0)  # Use detected encoding
+                df = pd.read_csv(file_path, sep="\t", header=0)  # Use detected encoding
                 if "easy_id" not in df.columns or "registration_finish_datetime" not in df.columns:
                     messagebox.showerror("Invalid CSV", f"The CSV file must contain 'easy_id' and 'registration_finish_datetime' columns.\n{df.columns}")
                     return
@@ -80,9 +80,9 @@ def select_csv_file():
                 df['registration_finish_datetime'] = pd.to_datetime(df['registration_finish_datetime'], errors='coerce')
                 filtered_df = df[df['registration_finish_datetime'] <= pd.to_datetime(selected_date)]
 
-                # Step 3: Save the filtered result as CSV
-                output_file = f"{output_folder}/filtered_result.csv"
-                filtered_df.to_csv(output_file, index=False)
+                # Step 3: Save the filtered result as TSV
+                output_file = f"{output_folder}/filtered_result.tsv"
+                filtered_df.to_csv(output_file, sep="\t", index=False)
                 messagebox.showinfo("Processing Complete", f"Filtered file saved to:\n{output_file}")
             except Exception as e:
                 messagebox.showerror("Processing Error", f"An error occurred:\n{e}")
