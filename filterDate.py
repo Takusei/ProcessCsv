@@ -141,6 +141,10 @@ def process_operation():
             # Rename columns assuming the first column is easy_id
             df_other.columns = ['easy_id'] + [f"col_{i}" for i in range(1, len(df_other.columns))]
 
+            update_status("Saving the easy_ids...")
+            output_file = f"{output_folder}/easy_id_{idx}.txt"  # Change the extension to .txt
+            df_other[['easy_id']].to_csv(output_file, sep="\t", index=False, header=True)
+
             # Drop rows where 'easy_id' is NaN and convert to a set
             easy_id_sets.append(set(df_other['easy_id'].dropna()))
 
