@@ -133,10 +133,10 @@ def process_operation():
             
             try:
                 # Attempt to read the file with utf-8 encoding
-                df_other = pd.read_csv(file_path, usecols=[0], skiprows=1, encoding="utf-8")
+                df_other = pd.read_csv(file_path, usecols=[0], skiprows=1, header=None, encoding="utf-8")
             except UnicodeDecodeError:
                 # Fallback to another encoding if utf-8 fails
-                df_other = pd.read_csv(file_path, usecols=[0], skiprows=1, encoding="ISO-8859-1")
+                df_other = pd.read_csv(file_path, usecols=[0], skiprows=1, header=None, encoding="ISO-8859-1")
             
             # Rename columns assuming the first column is easy_id
             df_other.columns = ['easy_id']
@@ -164,11 +164,13 @@ def process_operation():
 
         # Step 6: Save the result
         update_status("Saving the result...")
-        output_file = f"{output_folder}/filtered_result.txt"  # Change the extension to .txt
-        result_df[['easy_id', 'registration_finish_datetime']].to_csv(output_file, sep="\t", index=False, header=True)
-
-        update_status(f"Processing complete. Result saved to:\n{output_file}")
-        messagebox.showinfo("Processing Complete", f"Filtered file saved to:\n{output_file}")
+        output_file1 = f"{output_folder}/filtered_result1.txt"  # Change the extension to .txt
+        output_file2 = f"{output_folder}/filtered_result2.txt"  # Change the extension to .txt
+        result_df[['easy_id', 'registration_finish_datetime']].to_csv(output_file1, sep="\t", index=False, header=True)
+        result_df[['easy_id', 'registration_finish_datetime']].to_csv(output_file2, sep="\t", index=False, header=True)
+        
+        update_status(f"Processing complete. Result saved to:\n{output_file1}")
+        messagebox.showinfo("Processing Complete", f"Filtered file saved to:\n{output_file1}")
 
     except Exception as e:
         messagebox.showerror("Processing Error", f"An error occurred:\n{e}")
