@@ -130,9 +130,18 @@ def process_operation():
         easy_id_sets = []
         for idx, file_path in enumerate(selected_other_files, start=1):
             update_status(f"Processing file {idx}/{len(selected_other_files)}: {file_path}")
-            df_other = pd.read_csv(file_path, sep="\t", header=0)
-            if "easy_id" not in df_other.columns:
-                raise ValueError(f"The file must contain 'easy_id' column.\n{file_path}")
+            
+            try:
+                # Attempt to read the file with utf-8 encoding
+                df_other = pd.read_csv(file_path, header=0, encoding="utf-8")
+            except UnicodeDecodeError:
+                # Fallback to another encoding if utf-8 fails
+                df_other = pd.read_csv(file_path, header=0, encoding="ISO-8859-1")
+            
+            # Rename columns assuming the first column is easy_id
+            df_other.columns = ['easy_id'] + [f"col_{i}" for i in range(1, len(df_other.columns))]
+
+            # Drop rows where 'easy_id' is NaN and convert to a set
             easy_id_sets.append(set(df_other['easy_id'].dropna()))
 
         # Step 4: Find the intersection of all easy_ids
