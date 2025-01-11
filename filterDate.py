@@ -133,13 +133,13 @@ def process_operation():
             
             try:
                 # Attempt to read the file with utf-8 encoding
-                df_other = pd.read_csv(file_path, header=0, encoding="utf-8")
+                df_other = pd.read_csv(file_path, usecols=[0], skiprows=1, encoding="utf-8")
             except UnicodeDecodeError:
                 # Fallback to another encoding if utf-8 fails
-                df_other = pd.read_csv(file_path, header=0, encoding="ISO-8859-1")
+                df_other = pd.read_csv(file_path, usecols=[0], skiprows=1, encoding="ISO-8859-1")
             
             # Rename columns assuming the first column is easy_id
-            df_other.columns = ['easy_id'] + [f"col_{i}" for i in range(1, len(df_other.columns))]
+            df_other.columns = ['easy_id']
 
             update_status("Saving the easy_ids...")
             output_file = f"{output_folder}/easy_id_{idx}.txt"  # Change the extension to .txt
