@@ -118,8 +118,9 @@ def process_operation():
             raise ValueError(f"エントリーファイルには 'easy_id' と 'registration_finish_datetime' 列が必要です。\n{df_entry.columns}")
 
         update_status("SPS登録者リストをフィルタリングしています...")
+        end_of_day = pd.to_datetime(selected_date) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1) # 選択した日付の終わり
         df_entry['registration_finish_datetime'] = pd.to_datetime(df_entry['registration_finish_datetime'], errors='coerce')
-        df_entry_filtered = df_entry[df_entry['registration_finish_datetime'] <= pd.to_datetime(selected_date)]
+        df_entry_filtered = df_entry[df_entry['registration_finish_datetime'] <= end_of_day]
 
         if df_entry_filtered.empty:
             raise ValueError("選択した日付に一致するデータがありません。")
