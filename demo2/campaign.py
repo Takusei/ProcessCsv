@@ -8,7 +8,7 @@ class CampaignProcessorApp:
         self.root.title("Campaign Processor")
 
         self.campaign_data = [
-            {"applied_file": None, "priority": None, "points": None, "successful_file": None}
+            {"applied_file": None, "priority_entry": None, "points_entry": None, "successful_file": None}
             for _ in range(7)
         ]
 
@@ -121,10 +121,16 @@ class CampaignProcessorApp:
             # To collect all easyIds, priorities, and points for the extra file
             all_results = []
 
+            # Filter campaigns that have a valid priority
+            valid_campaigns = [
+                campaign for campaign in self.campaign_data
+                if campaign["priority_entry"].get() and campaign["applied_file"]
+            ]
+
             # Sort campaigns by priority (descending order, larger number = higher priority)
             sorted_campaigns = sorted(
-                self.campaign_data,
-                key=lambda x: int(x["priority_entry"].get()) if x["priority_entry"].get() else 0,
+                valid_campaigns,
+                key=lambda x: int(x["priority_entry"].get()),
                 reverse=True
             )
 
@@ -133,12 +139,8 @@ class CampaignProcessorApp:
                 priority = campaign["priority_entry"].get()
                 points = campaign["points_entry"].get()
 
-                if not applied_file or not priority or not points:
+                if not applied_file or not points:
                     messagebox.showerror("Error", f"Missing input for campaign {i + 1}.")
-                    return
-
-                if not campaign["successful_file"] and self.shared_successful_file is None:
-                    messagebox.showerror("Error", "Shared successful file is missing for the last 4 campaigns.")
                     return
 
                 # Determine the successful_file based on the original index
@@ -146,6 +148,10 @@ class CampaignProcessorApp:
                 successful_file = (
                     self.shared_successful_file if original_index >= 3 else campaign["successful_file"]
                 )
+
+                if not successful_file:
+                    messagebox.showerror("Error", f"Missing successful file for campaign {i + 1}.")
+                    return
 
                 priority = int(priority)
                 points = int(points)
