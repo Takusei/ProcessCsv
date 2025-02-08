@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import pandas as pd
+import os
 
 class CampaignProcessorApp:
     def __init__(self, root):
@@ -110,6 +111,11 @@ class CampaignProcessorApp:
             self.root.grid_slaves(row=index, column=1)[0].config(text=file_path.split("/")[-1])
 
     def process_files(self):
+        output_folder = filedialog.askdirectory()
+        if not output_folder:
+            messagebox.showerror("Error", "Please select an output folder.")
+            return
+
         try:
             # Initialize processed_easy_ids with data from initial files
             processed_easy_ids = set()
@@ -170,7 +176,7 @@ class CampaignProcessorApp:
 
                 # Save the result to a new CSV file
                 output_df = pd.DataFrame({'easyId': list(valid_ids)})
-                output_file = f"{points}_points.csv"
+                output_file = os.path.join(output_folder, f"{points}_points.csv")
                 output_df.to_csv(output_file, index=False)
 
                 # Append to all_results with their priority and points
@@ -178,7 +184,7 @@ class CampaignProcessorApp:
 
             # Save the extra file with all results, priorities, and points
             all_results_df = pd.DataFrame(all_results, columns=['easyId', 'priority', 'points'])
-            all_results_df.to_csv("all_campaign_results.csv", index=False)
+            all_results_df.to_csv(os.path.join(output_folder, "all_campaign_results.csv"), index=False)
 
             messagebox.showinfo("Success", "Processing complete! Output files have been saved.")
 
