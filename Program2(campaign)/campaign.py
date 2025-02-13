@@ -112,13 +112,13 @@ class CampaignProcessorApp:
             self.shared_successful_label.config(text=file_path.split("/")[-1])
 
     def select_shared_extra_file(self):
-        file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
+        file_path = filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
         if file_path:
             self.shared_extra_file = file_path
             self.shared_extra_label.config(text=file_path.split("/")[-1])
 
     def select_initial_file(self, index):
-        file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
+        file_path = filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
         if file_path:
             self.initial_processed_files[index] = file_path
             self.root.grid_slaves(row=index, column=1)[0].config(text=file_path.split("/")[-1])
@@ -134,8 +134,10 @@ class CampaignProcessorApp:
             processed_easy_ids = set()
             for file_path in self.initial_processed_files:
                 if file_path:
-                    initial_df = pd.read_csv(file_path)
-                    processed_easy_ids.update(initial_df['easyId'])
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        for line in f:
+                            processed_easy_ids.add(line.strip())  # Strip to remove extra whitespace or newline
+
 
             # To collect all easyIds, priorities, and points for the extra file
             all_results = []
@@ -178,13 +180,21 @@ class CampaignProcessorApp:
                 priority = int(priority)
                 points = int(points)
 
-                applied_df = pd.read_csv(applied_file)
-                successful_df = pd.read_csv(successful_file)
-                extra_df = pd.read_csv(extra_file)
+                # Read applied_file (CSV with a single column, no header)
+                applied_df = pd.read_csv(applied_file, header=None, names=["easy_id"])  
+                applied_ids = set(applied_df["easy_id"])
 
-                applied_ids = set(applied_df['easyId'])
-                successful_ids = set(successful_df['easyId'])
-                extra_ids = set(extra_df['easyId'])
+                # Read successful_file (CSV with headers, assuming it has 'easy_id' column)
+                successful_df = pd.read_csv(successful_file)
+                successful_ids = set(successful_df["easy_id"])
+
+                # Read extra_file (TXT with first row as header, following rows as data)
+                with open(extra_file, "r", encoding="utf-8") as f:
+                    lines = f.readlines()
+                    if lines[0].strip() != "easy_id":
+                        raise ValueError(f"Invalid format in {extra_file}. First line must be 'easy_id'")
+                    extra_ids = set(line.strip() for line in lines[1:])  # Skip the header
+
 
                 # Get intersection and exclude IDs already processed in higher-priority campaigns
                 valid_ids = (applied_ids & successful_ids & extra_ids) - processed_easy_ids
