@@ -9,55 +9,56 @@ class CampaignProcessorApp:
         self.root.title("Campaign Processor")
 
         self.campaign_data = [
-            {"applied_file": None, "priority_entry": None, "points_entry": None, "successful_file": None}
+            {"applied_file": None, "priority_entry": None, "points_entry": None, "successful_file": None, "extra_file": None}
             for _ in range(7)
         ]
 
         self.shared_successful_file = None  # Shared successful file for the last 4 campaigns
-        self.initial_processed_files = [None, None, None]  # To store the initial processed_easy_ids files
+        self.shared_extra_file = None  # Shared extra file for the last 4 campaigns
+        
+        self.initial_processed_files = [None, None]  # Two global initial processed_easy_ids files
         self.create_widgets()
 
     def create_widgets(self):
         # File inputs for initial processed_easy_ids
-        for i in range(3):
+        for i in range(2):
             tk.Button(self.root, text=f"Select Initial Processed File {i + 1}", command=lambda i=i: self.select_initial_file(i)).grid(row=i, column=0, padx=10, pady=5)
             self.initial_file_label = tk.Label(self.root, text="No file selected", width=30)
             self.initial_file_label.grid(row=i, column=1, padx=10, pady=5)
 
-        # Frame for campaigns 1-3
+       # Frame for campaigns 1-3
         for i in range(3):
             frame = ttk.LabelFrame(self.root, text=f"Campaign {i + 1}", padding=(10, 10))
-            frame.grid(row=i + 3, column=0, columnspan=9, padx=10, pady=5, sticky="ew")
+            frame.grid(row=i + 2, column=0, columnspan=10, padx=10, pady=5, sticky="ew")
 
-            # File input for applied file
             tk.Button(frame, text="Select Applied File", command=lambda i=i: self.select_file(i, "applied_file")).grid(row=0, column=0, padx=10, pady=5)
-            tk.Label(frame, text="Applied File: ").grid(row=0, column=1, padx=5, pady=5, sticky="w")
             applied_label = tk.Label(frame, text="No file selected", width=20)
-            applied_label.grid(row=0, column=2, padx=10, pady=5)
+            applied_label.grid(row=0, column=1, padx=10, pady=5)
             self.campaign_data[i]["applied_label"] = applied_label
 
-            # Priority input
-            tk.Label(frame, text="Priority").grid(row=0, column=3, padx=10, pady=5)
+            tk.Label(frame, text="Priority").grid(row=0, column=2, padx=10, pady=5)
             priority_entry = tk.Entry(frame, width=5)
-            priority_entry.grid(row=0, column=4, padx=10, pady=5)
+            priority_entry.grid(row=0, column=3, padx=10, pady=5)
             self.campaign_data[i]["priority_entry"] = priority_entry
 
-            # Points input
-            tk.Label(frame, text="Points").grid(row=0, column=5, padx=10, pady=5)
+            tk.Label(frame, text="Points").grid(row=0, column=4, padx=10, pady=5)
             points_entry = tk.Entry(frame, width=10)
-            points_entry.grid(row=0, column=6, padx=10, pady=5)
+            points_entry.grid(row=0, column=5, padx=10, pady=5)
             self.campaign_data[i]["points_entry"] = points_entry
 
-            # File input for successful file
-            tk.Button(frame, text="Select Successful File", command=lambda i=i: self.select_file(i, "successful_file")).grid(row=0, column=7, padx=10, pady=5)
-            tk.Label(frame, text="Successful File: ").grid(row=0, column=8, padx=5, pady=5, sticky="w")
+            tk.Button(frame, text="Select Successful File", command=lambda i=i: self.select_file(i, "successful_file")).grid(row=1, column=0, padx=10, pady=5)
             successful_label = tk.Label(frame, text="No file selected", width=20)
-            successful_label.grid(row=0, column=9, padx=10, pady=5)
+            successful_label.grid(row=1, column=1, padx=10, pady=5)
             self.campaign_data[i]["successful_label"] = successful_label
 
+            tk.Button(frame, text="Select Extra File", command=lambda i=i: self.select_file(i, "extra_file")).grid(row=1, column=2, padx=10, pady=5)
+            extra_label = tk.Label(frame, text="No file selected", width=20)
+            extra_label.grid(row=1, column=3, padx=10, pady=5)
+            self.campaign_data[i]["extra_label"] = extra_label
+
         # Frame for campaigns 4-7
-        frame_shared = ttk.LabelFrame(self.root, text="Campaigns 4-7 (Shared Successful File)", padding=(10, 10))
-        frame_shared.grid(row=6, column=0, columnspan=9, padx=10, pady=5, sticky="ew")
+        frame_shared = ttk.LabelFrame(self.root, text="Campaigns 4-7 (Shared Successful and Extra Files)", padding=(10, 10))
+        frame_shared.grid(row=6, column=0, columnspan=10, padx=10, pady=5, sticky="ew")
 
         for i in range(3, 7):
             tk.Label(frame_shared, text=f"Campaign {i + 1}").grid(row=i - 3, column=0, padx=10, pady=5, sticky="w")
@@ -80,11 +81,15 @@ class CampaignProcessorApp:
             points_entry.grid(row=i - 3, column=6, padx=10, pady=5)
             self.campaign_data[i]["points_entry"] = points_entry
 
-        # Shared successful file input for last 4 campaigns
+        # Shared successful file input
         tk.Button(frame_shared, text="Select Shared Successful File", command=self.select_shared_successful_file).grid(row=4, column=1, padx=10, pady=5)
-        tk.Label(frame_shared, text="Shared Successful File: ").grid(row=4, column=2, padx=5, pady=5, sticky="w")
-        self.shared_successful_label = tk.Label(frame_shared, text="No file selected", width=20)
-        self.shared_successful_label.grid(row=4, column=3, padx=10, pady=5)
+        self.shared_successful_label = tk.Label(frame_shared, text="No file selected", width=30)
+        self.shared_successful_label.grid(row=4, column=2, padx=10, pady=5)
+
+        # Shared extra file input
+        tk.Button(frame_shared, text="Select Shared Extra File", command=self.select_shared_extra_file).grid(row=5, column=1, padx=10, pady=5)
+        self.shared_extra_label = tk.Label(frame_shared, text="No file selected", width=30)
+        self.shared_extra_label.grid(row=5, column=2, padx=10, pady=5)
 
         # Execute button
         tk.Button(self.root, text="Process and Save", command=self.process_files).grid(row=7, column=0, columnspan=9, pady=20)
@@ -97,12 +102,20 @@ class CampaignProcessorApp:
                 self.campaign_data[campaign_index]["applied_label"].config(text=file_path.split("/")[-1])
             elif file_type == "successful_file":
                 self.campaign_data[campaign_index]["successful_label"].config(text=file_path.split("/")[-1])
+            elif file_type == "extra_file":
+                self.campaign_data[campaign_index]["extra_label"].config(text=file_path.split("/")[-1])
 
     def select_shared_successful_file(self):
         file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
         if file_path:
             self.shared_successful_file = file_path
             self.shared_successful_label.config(text=file_path.split("/")[-1])
+
+    def select_shared_extra_file(self):
+        file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
+        if file_path:
+            self.shared_extra_file = file_path
+            self.shared_extra_label.config(text=file_path.split("/")[-1])
 
     def select_initial_file(self, index):
         file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
@@ -154,6 +167,9 @@ class CampaignProcessorApp:
                 successful_file = (
                     self.shared_successful_file if original_index >= 3 else campaign["successful_file"]
                 )
+                extra_file = (
+                    self.shared_extra_file if original_index >= 3 else campaign["extra_file"]
+                )
 
                 if not successful_file:
                     messagebox.showerror("Error", f"Missing successful file for campaign {i + 1}.")
@@ -164,12 +180,14 @@ class CampaignProcessorApp:
 
                 applied_df = pd.read_csv(applied_file)
                 successful_df = pd.read_csv(successful_file)
+                extra_df = pd.read_csv(extra_file)
 
                 applied_ids = set(applied_df['easyId'])
                 successful_ids = set(successful_df['easyId'])
+                extra_ids = set(extra_df['easyId'])
 
                 # Get intersection and exclude IDs already processed in higher-priority campaigns
-                valid_ids = (applied_ids & successful_ids) - processed_easy_ids
+                valid_ids = (applied_ids & successful_ids & extra_ids) - processed_easy_ids
 
                 # Update the set of processed IDs
                 processed_easy_ids.update(valid_ids)
