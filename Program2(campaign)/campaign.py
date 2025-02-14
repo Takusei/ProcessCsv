@@ -8,6 +8,21 @@ class CampaignProcessorApp:
         self.root = root
         self.root.title("Campaign Processor")
 
+        self.main_frame = tk.Frame(self.root)
+        self.main_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.canvas = tk.Canvas(self.main_frame)
+        self.scrollbar = tk.Scrollbar(self.main_frame, orient=tk.HORIZONTAL, command=self.canvas.xview)
+        self.canvas.configure(xscrollcommand=self.scrollbar.set)
+        
+        self.scroll_frame = tk.Frame(self.canvas)
+        self.scroll_window = self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
+
+        self.canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+        
+        self.scroll_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+
         self.campaign_data = [
             {"applied_file": None, "priority_entry": None, "points_entry": None, "successful_file": None, "extra_file": None}
             for _ in range(7)
@@ -20,10 +35,10 @@ class CampaignProcessorApp:
         self.create_widgets()
 
     def create_widgets(self):
-        left_frame = tk.Frame(self.root)
+        left_frame = tk.Frame(self.scroll_frame)
         left_frame.grid(row=0, column=0, padx=10, pady=5, sticky="ns")
 
-        right_frame = tk.Frame(self.root)
+        right_frame = tk.Frame(self.scroll_frame)
         right_frame.grid(row=0, column=1, padx=10, pady=5, sticky="ns")
 
         # File inputs for initial processed_easy_ids
