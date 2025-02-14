@@ -97,7 +97,7 @@ class CampaignProcessorApp:
 
     def select_file(self, campaign_index, file_type):
         if file_type == "extra_file":
-            file_path = filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
+            file_path = filedialog.askopenfilename(filetypes=[("Text or TSV files", "*.txt;*.tsv")])
         else:
             file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
         if file_path:
@@ -116,7 +116,7 @@ class CampaignProcessorApp:
             self.shared_successful_label.config(text=file_path.split("/")[-1])
 
     def select_shared_extra_file(self):
-        file_path = filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
+        file_path = filedialog.askopenfilename(filetypes=[("Text or TSV files", "*.txt;*.tsv")])
         if file_path:
             self.shared_extra_file = file_path
             self.shared_extra_label.config(text=file_path.split("/")[-1])
@@ -192,12 +192,21 @@ class CampaignProcessorApp:
                 successful_df = pd.read_csv(successful_file)
                 successful_ids = set(successful_df["easy_id"])
 
-                # Read extra_file (TXT with first row as header, following rows as data)
-                with open(extra_file, "r", encoding="utf-8") as f:
-                    lines = f.readlines()
-                    if lines[0].strip() != "easy_id":
-                        raise ValueError(f"Invalid format in {extra_file}. First line must be 'easy_id'")
-                    extra_ids = set(line.strip() for line in lines[1:])  # Skip the header
+                # Read extra_file (TXT or TSV)
+                extra_ids = set()
+
+                if extra_file.lower().endswith(".txt"):
+                    with open(extra_file, "r", encoding="utf-8") as f:
+                        lines = f.readlines()
+                        if lines[0].strip() != "easy_id":
+                            raise ValueError(f"Invalid format in {extra_file}. First line must be 'easy_id'")
+                        extra_ids = set(line.strip() for line in lines[1:])  # Skip the header
+
+                elif extra_file.lower().endswith(".tsv"):
+                    extra_df = pd.read_csv(extra_file, sep="\t")  # Read TSV file
+                    if "easy_id" not in extra_df.columns:
+                        raise ValueError(f"Invalid format in {extra_file}. Must contain 'easy_id' column")
+                    extra_ids = set(extra_df["easy_id"])
 
 
                 # Get intersection and exclude IDs already processed in higher-priority campaigns
