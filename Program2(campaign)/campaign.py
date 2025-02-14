@@ -32,6 +32,7 @@ class CampaignProcessorApp:
         self.shared_extra_file = None  # Shared extra file for the last 4 campaigns
         
         self.initial_processed_files = [None, None]  # Two global initial processed_easy_ids files
+        self.initial_file_labels = [None, None]  # Store labels for each initial file input
         self.create_widgets()
 
     def create_widgets(self):
@@ -44,8 +45,9 @@ class CampaignProcessorApp:
         # File inputs for initial processed_easy_ids
         for i in range(2):
             tk.Button(left_frame, text=f"除外するファイル {i + 1}", command=lambda i=i: self.select_initial_file(i)).grid(row=i, column=0, padx=10, pady=5)
-            self.initial_file_label = tk.Label(left_frame, text="No file selected", width=30)
-            self.initial_file_label.grid(row=i, column=1, padx=10, pady=5)
+            label = tk.Label(left_frame, text="No file selected", width=30)
+            label.grid(row=i, column=1, padx=10, pady=5)
+            self.initial_file_labels[i] = label  # Store label reference
 
         # Frame for campaigns 1-3
         for i in range(3):
@@ -140,7 +142,7 @@ class CampaignProcessorApp:
         file_path = filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
         if file_path:
             self.initial_processed_files[index] = file_path
-            self.root.grid_slaves(row=index, column=1)[0].config(text=file_path.split("/")[-1])
+            self.initial_file_labels[index].config(text=file_path.split("/")[-1])  # Update the correct label
 
     def process_files(self):
         output_folder = filedialog.askdirectory()
