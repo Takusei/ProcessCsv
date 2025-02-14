@@ -28,7 +28,7 @@ class CampaignProcessorApp:
 
         # File inputs for initial processed_easy_ids
         for i in range(2):
-            tk.Button(left_frame, text=f"Select Initial Processed File {i + 1}", command=lambda i=i: self.select_initial_file(i)).grid(row=i, column=0, padx=10, pady=5)
+            tk.Button(left_frame, text=f"除外するファイル {i + 1}", command=lambda i=i: self.select_initial_file(i)).grid(row=i, column=0, padx=10, pady=5)
             self.initial_file_label = tk.Label(left_frame, text="No file selected", width=30)
             self.initial_file_label.grid(row=i, column=1, padx=10, pady=5)
 
@@ -37,7 +37,7 @@ class CampaignProcessorApp:
             frame = ttk.LabelFrame(left_frame, text=f"Campaign {i + 1}", padding=(10, 10))
             frame.grid(row=i + 2, column=0, columnspan=10, padx=10, pady=5, sticky="ew")
 
-            tk.Button(frame, text="Select Applied File", command=lambda i=i: self.select_file(i, "applied_file")).grid(row=0, column=0, padx=10, pady=5)
+            tk.Button(frame, text="エントリーリスト：", command=lambda i=i: self.select_file(i, "applied_file")).grid(row=0, column=0, padx=10, pady=5)
             applied_label = tk.Label(frame, text="No file selected", width=20)
             applied_label.grid(row=0, column=1, padx=10, pady=5)
             self.campaign_data[i]["applied_label"] = applied_label
@@ -52,24 +52,24 @@ class CampaignProcessorApp:
             points_entry.grid(row=0, column=5, padx=10, pady=5)
             self.campaign_data[i]["points_entry"] = points_entry
 
-            tk.Button(frame, text="Select Successful File", command=lambda i=i: self.select_file(i, "successful_file")).grid(row=1, column=0, padx=10, pady=5)
+            tk.Button(frame, text="条件達成者リスト：", command=lambda i=i: self.select_file(i, "successful_file")).grid(row=1, column=0, padx=10, pady=5)
             successful_label = tk.Label(frame, text="No file selected", width=20)
             successful_label.grid(row=1, column=1, padx=10, pady=5)
             self.campaign_data[i]["successful_label"] = successful_label
 
-            tk.Button(frame, text="Select Extra File", command=lambda i=i: self.select_file(i, "extra_file")).grid(row=1, column=2, padx=10, pady=5)
+            tk.Button(frame, text="追加リスト：", command=lambda i=i: self.select_file(i, "extra_file")).grid(row=1, column=2, padx=10, pady=5)
             extra_label = tk.Label(frame, text="No file selected", width=20)
             extra_label.grid(row=1, column=3, padx=10, pady=5)
             self.campaign_data[i]["extra_label"] = extra_label
 
         # Frame for campaigns 4-7
-        frame_shared = ttk.LabelFrame(right_frame, text="Campaigns 4-7 (Shared Successful and Extra Files)", padding=(10, 10))
+        frame_shared = ttk.LabelFrame(right_frame, text="Campaigns 4-7", padding=(10, 10))
         frame_shared.grid(row=0, column=0, columnspan=10, padx=10, pady=5, sticky="ew")
 
         for i in range(3, 7):
             tk.Label(frame_shared, text=f"Campaign {i + 1}").grid(row=i - 3, column=0, padx=10, pady=5, sticky="w")
 
-            tk.Button(frame_shared, text="Select Applied File", command=lambda i=i: self.select_file(i, "applied_file")).grid(row=i - 3, column=1, padx=10, pady=5)
+            tk.Button(frame_shared, text="エントリーリスト：", command=lambda i=i: self.select_file(i, "applied_file")).grid(row=i - 3, column=1, padx=10, pady=5)
             applied_label = tk.Label(frame_shared, text="No file selected", width=20)
             applied_label.grid(row=i - 3, column=2, padx=10, pady=5)
             self.campaign_data[i]["applied_label"] = applied_label
@@ -84,15 +84,15 @@ class CampaignProcessorApp:
             points_entry.grid(row=i - 3, column=6, padx=10, pady=5)
             self.campaign_data[i]["points_entry"] = points_entry
 
-        tk.Button(frame_shared, text="Select Shared Successful File", command=self.select_shared_successful_file).grid(row=4, column=1, padx=10, pady=5)
+        tk.Button(frame_shared, text="条件達成者リスト：", command=self.select_shared_successful_file).grid(row=4, column=1, padx=10, pady=5)
         self.shared_successful_label = tk.Label(frame_shared, text="No file selected", width=30)
         self.shared_successful_label.grid(row=4, column=2, padx=10, pady=5)
 
-        tk.Button(frame_shared, text="Select Shared Extra File", command=self.select_shared_extra_file).grid(row=5, column=1, padx=10, pady=5)
+        tk.Button(frame_shared, text="追加リスト：", command=self.select_shared_extra_file).grid(row=5, column=1, padx=10, pady=5)
         self.shared_extra_label = tk.Label(frame_shared, text="No file selected", width=30)
         self.shared_extra_label.grid(row=5, column=2, padx=10, pady=5)
 
-        tk.Button(right_frame, text="Process and Save", command=self.process_files).grid(row=1, column=0, columnspan=9, pady=20)
+        tk.Button(right_frame, text="実行", command=self.process_files).grid(row=1, column=0, columnspan=9, pady=20)
 
 
     def select_file(self, campaign_index, file_type):
