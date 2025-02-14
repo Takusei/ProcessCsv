@@ -9,6 +9,8 @@ def detect_encoding(file_path):
         result = chardet.detect(f.read(10000))  # Read a chunk to detect encoding
         return result["encoding"]
 
+
+
 class CampaignProcessorApp:
     def __init__(self, root):
         self.root = root
@@ -34,12 +36,23 @@ class CampaignProcessorApp:
             for _ in range(7)
         ]
 
+        self.TITLE = {
+            1: '新規100',
+            2: 'SS',
+            3: 'スタート1000',
+            4: 'Silver',
+            5: 'Gold',
+            6: 'Platinum',
+            7: 'Diamond'
+        }
+
         self.shared_successful_file = None  # Shared successful file for the last 4 campaigns
         self.shared_extra_file = None  # Shared extra file for the last 4 campaigns
         
         self.initial_processed_files = [None, None]  # Two global initial processed_easy_ids files
         self.initial_file_labels = [None, None]  # Store labels for each initial file input
         self.create_widgets()
+
 
     def create_widgets(self):
         left_frame = tk.Frame(self.scroll_frame)
@@ -57,7 +70,7 @@ class CampaignProcessorApp:
 
         # Frame for campaigns 1-3
         for i in range(3):
-            frame = ttk.LabelFrame(left_frame, text=f"Campaign {i + 1}", padding=(10, 10))
+            frame = ttk.LabelFrame(left_frame, text=self.TITLE[i+1], padding=(10, 10))
             frame.grid(row=i + 2, column=0, columnspan=10, padx=10, pady=5, sticky="ew")
 
             tk.Button(frame, text="エントリーリスト：", command=lambda i=i: self.select_file(i, "applied_file")).grid(row=0, column=0, padx=10, pady=5)
@@ -86,11 +99,11 @@ class CampaignProcessorApp:
             self.campaign_data[i]["extra_label"] = extra_label
 
         # Frame for campaigns 4-7
-        frame_shared = ttk.LabelFrame(right_frame, text="Campaigns 4-7", padding=(10, 10))
+        frame_shared = ttk.LabelFrame(right_frame, text="ランク別キャンペーン", padding=(10, 10))
         frame_shared.grid(row=0, column=0, columnspan=10, padx=10, pady=5, sticky="ew")
 
         for i in range(3, 7):
-            tk.Label(frame_shared, text=f"Campaign {i + 1}").grid(row=i - 3, column=0, padx=10, pady=5, sticky="w")
+            tk.Label(frame_shared, text=self.TITLE[i+1]).grid(row=i - 3, column=0, padx=10, pady=5, sticky="w")
 
             tk.Button(frame_shared, text="エントリーリスト：", command=lambda i=i: self.select_file(i, "applied_file")).grid(row=i - 3, column=1, padx=10, pady=5)
             applied_label = tk.Label(frame_shared, text="No file selected", width=20)
