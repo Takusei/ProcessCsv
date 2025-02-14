@@ -177,13 +177,13 @@ class CampaignProcessorApp:
                     try:
                         with open(file_path, "r", encoding="utf-8") as f:
                             for line in f:
-                                processed_easy_ids.add(line.strip())  # Strip to remove extra whitespace or newline
+                                processed_easy_ids.add(int(line.strip()))  # Strip to remove extra whitespace or newline
                     except UnicodeDecodeError:
                         # If UTF-8 fails, detect encoding and try again
                         detected_encoding = detect_encoding(file_path)
                         with open(file_path, "r", encoding=detected_encoding) as f:
                             for line in f:
-                                processed_easy_ids.add(line.strip())
+                                processed_easy_ids.add(int(line.strip()))
 
 
             # To collect all easyIds, priorities, and points for the extra file
@@ -249,7 +249,7 @@ class CampaignProcessorApp:
 
                     if lines[0].strip() != "easy_id":
                         raise ValueError(f"Invalid format in {extra_file}. First line must be 'easy_id'")
-                    extra_ids = set(line.strip() for line in lines[1:])  # Skip the header
+                    extra_ids = set(int(line.strip()) for line in lines[1:])  # Skip the header
 
                 elif extra_file.lower().endswith(".tsv"):
                     try:
