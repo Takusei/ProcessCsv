@@ -2,6 +2,12 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import pandas as pd
 import os
+import chardet  # Detect encoding
+
+def detect_encoding(file_path):
+    with open(file_path, "rb") as f:
+        result = chardet.detect(f.read(10000))  # Read a chunk to detect encoding
+        return result["encoding"]
 
 class CampaignProcessorApp:
     def __init__(self, root):
@@ -155,9 +161,16 @@ class CampaignProcessorApp:
             processed_easy_ids = set()
             for file_path in self.initial_processed_files:
                 if file_path:
-                    with open(file_path, "r", encoding="utf-8") as f:
-                        for line in f:
-                            processed_easy_ids.add(line.strip())  # Strip to remove extra whitespace or newline
+                    try:
+                        with open(file_path, "r", encoding="utf-8") as f:
+                            for line in f:
+                                processed_easy_ids.add(line.strip())  # Strip to remove extra whitespace or newline
+                    except UnicodeDecodeError:
+                        # If UTF-8 fails, detect encoding and try again
+                        detected_encoding = detect_encoding(file_path)
+                        with open(file_path, "r", encoding=detected_encoding) as f:
+                            for line in f:
+                                processed_easy_ids.add(line.strip())
 
 
             # To collect all easyIds, priorities, and points for the extra file
@@ -213,14 +226,25 @@ class CampaignProcessorApp:
                 extra_ids = set()
 
                 if extra_file.lower().endswith(".txt"):
-                    with open(extra_file, "r", encoding="utf-8") as f:
-                        lines = f.readlines()
-                        if lines[0].strip() != "easy_id":
-                            raise ValueError(f"Invalid format in {extra_file}. First line must be 'easy_id'")
-                        extra_ids = set(line.strip() for line in lines[1:])  # Skip the header
+                    try:
+                        with open(extra_file, "r", encoding="utf-8") as f:
+                            lines = f.readlines()
+                    except UnicodeDecodeError:
+                        detected_encoding = detect_encoding(extra_file)
+                        with open(extra_file, "r", encoding=detected_encoding) as f:
+                            lines = f.readlines()
+
+                    if lines[0].strip() != "easy_id":
+                        raise ValueError(f"Invalid format in {extra_file}. First line must be 'easy_id'")
+                    extra_ids = set(line.strip() for line in lines[1:])  # Skip the header
 
                 elif extra_file.lower().endswith(".tsv"):
-                    extra_df = pd.read_csv(extra_file, sep="\t")  # Read TSV file
+                    try:
+                        extra_df = pd.read_csv(extra_file, sep="\t", encoding="utf-8")  # Read TSV file
+                    except UnicodeDecodeError:
+                        detected_encoding = detect_encoding(extra_file)
+                        extra_df = pd.read_csv(extra_file, sep="\t", encoding=detected_encoding)
+
                     if "easy_id" not in extra_df.columns:
                         raise ValueError(f"Invalid format in {extra_file}. Must contain 'easy_id' column")
                     extra_ids = set(extra_df["easy_id"])
