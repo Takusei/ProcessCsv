@@ -20,15 +20,21 @@ class CampaignProcessorApp:
         self.create_widgets()
 
     def create_widgets(self):
+        left_frame = tk.Frame(self.root)
+        left_frame.grid(row=0, column=0, padx=10, pady=5, sticky="ns")
+
+        right_frame = tk.Frame(self.root)
+        right_frame.grid(row=0, column=1, padx=10, pady=5, sticky="ns")
+
         # File inputs for initial processed_easy_ids
         for i in range(2):
-            tk.Button(self.root, text=f"Select Initial Processed File {i + 1}", command=lambda i=i: self.select_initial_file(i)).grid(row=i, column=0, padx=10, pady=5)
-            self.initial_file_label = tk.Label(self.root, text="No file selected", width=30)
+            tk.Button(left_frame, text=f"Select Initial Processed File {i + 1}", command=lambda i=i: self.select_initial_file(i)).grid(row=i, column=0, padx=10, pady=5)
+            self.initial_file_label = tk.Label(left_frame, text="No file selected", width=30)
             self.initial_file_label.grid(row=i, column=1, padx=10, pady=5)
 
-       # Frame for campaigns 1-3
+        # Frame for campaigns 1-3
         for i in range(3):
-            frame = ttk.LabelFrame(self.root, text=f"Campaign {i + 1}", padding=(10, 10))
+            frame = ttk.LabelFrame(left_frame, text=f"Campaign {i + 1}", padding=(10, 10))
             frame.grid(row=i + 2, column=0, columnspan=10, padx=10, pady=5, sticky="ew")
 
             tk.Button(frame, text="Select Applied File", command=lambda i=i: self.select_file(i, "applied_file")).grid(row=0, column=0, padx=10, pady=5)
@@ -57,45 +63,43 @@ class CampaignProcessorApp:
             self.campaign_data[i]["extra_label"] = extra_label
 
         # Frame for campaigns 4-7
-        frame_shared = ttk.LabelFrame(self.root, text="Campaigns 4-7 (Shared Successful and Extra Files)", padding=(10, 10))
-        frame_shared.grid(row=6, column=0, columnspan=10, padx=10, pady=5, sticky="ew")
+        frame_shared = ttk.LabelFrame(right_frame, text="Campaigns 4-7 (Shared Successful and Extra Files)", padding=(10, 10))
+        frame_shared.grid(row=0, column=0, columnspan=10, padx=10, pady=5, sticky="ew")
 
         for i in range(3, 7):
             tk.Label(frame_shared, text=f"Campaign {i + 1}").grid(row=i - 3, column=0, padx=10, pady=5, sticky="w")
 
-            # File input for applied file
             tk.Button(frame_shared, text="Select Applied File", command=lambda i=i: self.select_file(i, "applied_file")).grid(row=i - 3, column=1, padx=10, pady=5)
             applied_label = tk.Label(frame_shared, text="No file selected", width=20)
             applied_label.grid(row=i - 3, column=2, padx=10, pady=5)
             self.campaign_data[i]["applied_label"] = applied_label
 
-            # Priority input
             tk.Label(frame_shared, text="Priority").grid(row=i - 3, column=3, padx=10, pady=5)
             priority_entry = tk.Entry(frame_shared, width=5)
             priority_entry.grid(row=i - 3, column=4, padx=10, pady=5)
             self.campaign_data[i]["priority_entry"] = priority_entry
 
-            # Points input
             tk.Label(frame_shared, text="Points").grid(row=i - 3, column=5, padx=10, pady=5)
             points_entry = tk.Entry(frame_shared, width=10)
             points_entry.grid(row=i - 3, column=6, padx=10, pady=5)
             self.campaign_data[i]["points_entry"] = points_entry
 
-        # Shared successful file input
         tk.Button(frame_shared, text="Select Shared Successful File", command=self.select_shared_successful_file).grid(row=4, column=1, padx=10, pady=5)
         self.shared_successful_label = tk.Label(frame_shared, text="No file selected", width=30)
         self.shared_successful_label.grid(row=4, column=2, padx=10, pady=5)
 
-        # Shared extra file input
         tk.Button(frame_shared, text="Select Shared Extra File", command=self.select_shared_extra_file).grid(row=5, column=1, padx=10, pady=5)
         self.shared_extra_label = tk.Label(frame_shared, text="No file selected", width=30)
         self.shared_extra_label.grid(row=5, column=2, padx=10, pady=5)
 
-        # Execute button
-        tk.Button(self.root, text="Process and Save", command=self.process_files).grid(row=7, column=0, columnspan=9, pady=20)
+        tk.Button(right_frame, text="Process and Save", command=self.process_files).grid(row=1, column=0, columnspan=9, pady=20)
+
 
     def select_file(self, campaign_index, file_type):
-        file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
+        if file_type == "extra_file":
+            file_path = filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
+        else:
+            file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
         if file_path:
             self.campaign_data[campaign_index][file_type] = file_path
             if file_type == "applied_file":
